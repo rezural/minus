@@ -48,11 +48,12 @@ pub fn page_all(lines: String) {
     let _ = enable_raw_mode();
     let _ = execute!(stdout(), Hide);
 
-    // The upper mark of scrolling
+    // The upper mark of scrolling and line numbers
     let mut upper_mark = 0 as usize;
+    let mut ln = false;
 
     // Draw at the very beginning
-    draw(lines.clone(), rows, &mut upper_mark);
+    draw(lines.clone(), rows, &mut upper_mark, ln);
 
     loop {
         if poll(std::time::Duration::from_millis(10)).unwrap() {
@@ -77,7 +78,7 @@ pub fn page_all(lines: String) {
                     modifiers: KeyModifiers::NONE,
                 }) => {
                     upper_mark += 1;
-                    draw(lines.clone(), rows, &mut upper_mark)
+                    draw(lines.clone(), rows, &mut upper_mark, ln)
                 }
                 // If Up arrow is pressed, subtract 1 from the marker and update the string
                 Event::Key(KeyEvent {
@@ -87,12 +88,19 @@ pub fn page_all(lines: String) {
                     if upper_mark != 0 {
                         upper_mark -= 1;
                     }
-                    draw(lines.clone(), rows, &mut upper_mark)
+                    draw(lines.clone(), rows, &mut upper_mark, ln)
                 }
                 // When terminal is resized, update the rows and redraw
                 Event::Resize(_, height) => {
                     rows = height as usize;
-                    draw(lines.clone(), rows, &mut upper_mark)
+                    draw(lines.clone(), rows, &mut upper_mark, ln)
+                }
+                Event::Key(KeyEvent {
+                    code: KeyCode::Char('l'),
+                    modifiers: KeyModifiers::CONTROL,
+                }) => {
+                    ln = !ln;
+                    draw(lines.clone(), rows, &mut upper_mark, ln);
                 }
                 _ => {}
             }
