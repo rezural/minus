@@ -24,6 +24,9 @@ fn init(mutex: Lines) {
     // Only needed when there is less data then the number of rows
     let mut last_copy = String::new();
 
+    // Line numbers. Turned off by default
+    let mut ln = false;
+
     loop {
         // Lock the data and check errors
         let string = mutex.try_lock();
@@ -35,7 +38,7 @@ fn init(mutex: Lines) {
         let string = string.unwrap();
         // Use .eq() here as == cannot compare MutexGuard with a normal string
         if !string.eq(&last_copy) {
-            draw(string.clone(), rows, &mut upper_mark.clone());
+            draw(string.clone(), rows, &mut upper_mark.clone(), ln);
             // Update the last copy, cloning here becaue string is inside MutexGuard
             last_copy = string.clone();
         }
@@ -65,7 +68,7 @@ fn init(mutex: Lines) {
                     modifiers: KeyModifiers::NONE,
                 }) => {
                     upper_mark += 1;
-                    draw(mutex.lock().unwrap().clone(), rows, &mut upper_mark)
+                    draw(mutex.lock().unwrap().clone(), rows, &mut upper_mark, ln)
                 }
                 // If Up arrow is pressed, subtract 1 from the marker and update the string
                 Event::Key(KeyEvent {
@@ -75,12 +78,20 @@ fn init(mutex: Lines) {
                     if upper_mark != 0 {
                         upper_mark -= 1;
                     }
-                    draw(mutex.lock().unwrap().clone(), rows, &mut upper_mark)
+                    draw(mutex.lock().unwrap().clone(), rows, &mut upper_mark, ln)
                 }
                 // When terminal is resized, update the rows and redraw
                 Event::Resize(_, height) => {
                     rows = height as usize;
-                    draw(mutex.lock().unwrap().clone(), rows, &mut upper_mark)
+                    draw(mutex.lock().unwrap().clone(), rows, &mut upper_mark, ln)
+                }
+                // Line numbers using Ctrl+L
+                Event::Key(KeyEvent {
+                    code: KeyCode::Char('l'),
+                    modifiers: KeyModifiers::CONTROL,
+                }) => {
+                    ln = !ln;
+                    draw(mutex.lock().unwrap().clone(), rows, &mut upper_mark, ln);
                 }
                 _ => {}
             }
