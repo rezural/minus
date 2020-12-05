@@ -138,10 +138,14 @@ fn init(mutex: Lines) {
 ///
 /// [`Alternate Screen`]: ../crossterm/terminal/index.html#alternate-screen
 /// [`raw mode`]: ../crossterm/terminal/index.html#raw-mode
-#[cfg(feature = "tokio_lib")]
+#[cfg(any(feature = "tokio_lib", feature = "tokio2_lib"))]
 pub async fn tokio_updating(mutex: Lines) {
-    use tokio::task;
-    task::spawn(async move {
+    #[cfg(all(feature = "tokio2_lib", not(feature = "tokio_lib")))]
+    use tokio2::spawn;
+    #[cfg(all(feature = "tokio_lib", not(feature = "tokio2_lib")))]
+    use tokio::task::spawn;
+    
+    spawn(async move {
         init(mutex);
     });
 }
