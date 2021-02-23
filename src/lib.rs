@@ -95,7 +95,7 @@ pub type PagerMutex = Mutex<Pager>;
 
 /// A struct containing basic configurations for the pager. This is used by
 /// all initializing functions
-#[derive(Clone)]
+// #[derive(Clone)]
 pub struct Pager {
     /// The output that is displayed
     pub lines: String,
@@ -105,6 +105,8 @@ pub struct Pager {
     pub prompt: String,
     // has all the data been sent to the pager
     pub data_finished: bool,
+    // callbacks which will be called when we finish
+    pub on_finished_callbacks: Vec<Box<dyn FnMut()>>,
     /// The behaviour to do when user quits the program using `q` or `Ctrl+C`
     /// See [`ExitStrategy`] for available options
     exit_strategy: ExitStrategy,
@@ -143,6 +145,7 @@ impl Pager {
             prompt: "minus".to_string(),
             exit_strategy: ExitStrategy::ProcessQuit,
             data_finished: false,
+            on_finished_callbacks: Vec::new(),
             page_if_havent_overflowed: true,
             searchable: true,
             #[cfg(feature = "search")]

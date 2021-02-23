@@ -224,7 +224,12 @@ pub(crate) async fn dynamic_paging(
             );
             // Update any data that may have changed
             match input {
-                Some(InputEvent::Exit) => return Ok(cleanup(out, &lock.exit_strategy, true)?),
+                Some(InputEvent::Exit) => {
+                    for finished_callback in &mut lock.on_finished_callbacks {
+                        finished_callback();
+                    }
+                    return Ok(cleanup(out, &lock.exit_strategy, true)?)
+                }
                 Some(InputEvent::UpdateRows(r)) => {
                     rows = r;
                     redraw = true;
