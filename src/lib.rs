@@ -106,7 +106,7 @@ pub struct Pager {
     // has all the data been sent to the pager
     pub data_finished: bool,
     // callbacks which will be called when we finish
-    pub on_finished_callbacks: Vec<Box<dyn FnMut()>>,
+    pub on_finished_callbacks: Vec<Box<dyn FnMut() + Send + Sync>>,
     /// The behaviour to do when user quits the program using `q` or `Ctrl+C`
     /// See [`ExitStrategy`] for available options
     exit_strategy: ExitStrategy,
