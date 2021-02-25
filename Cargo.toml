@@ -39,6 +39,10 @@ name = "dyn_async_std"
 required-features = ["async_std_lib"]
 
 [[example]]
+name = "segfault"
+required-features = ["async_std_lib"]
+
+[[example]]
 name = "log_async_std"
 required-features = ["async_std_lib"]
 
