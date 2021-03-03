@@ -140,19 +140,11 @@ pub(crate) fn handle_input(
         Event::Key(KeyEvent {
             code: KeyCode::Up,
             modifiers: KeyModifiers::NONE,
-        })
-        | Event::Key(KeyEvent {
-            code: KeyCode::Char('j'),
-            modifiers: KeyModifiers::NONE,
         }) => Some(InputEvent::UpdateUpperMark(upper_mark.saturating_sub(1))),
 
         // Scroll down by one.
         Event::Key(KeyEvent {
             code: KeyCode::Down,
-            modifiers: KeyModifiers::NONE,
-        })
-        | Event::Key(KeyEvent {
-            code: KeyCode::Char('k'),
             modifiers: KeyModifiers::NONE,
         }) => Some(InputEvent::UpdateUpperMark(upper_mark.saturating_add(1))),
 
@@ -167,20 +159,12 @@ pub(crate) fn handle_input(
         }) => Some(InputEvent::UpdateUpperMark(upper_mark.saturating_add(5))),
         // Go to top.
         Event::Key(KeyEvent {
-            code: KeyCode::Char('g'),
+            code: KeyCode::Home,
             modifiers: KeyModifiers::NONE,
         }) => Some(InputEvent::UpdateUpperMark(0)),
         // Go to bottom.
         Event::Key(KeyEvent {
-            code: KeyCode::Char('g'),
-            modifiers: KeyModifiers::SHIFT,
-        })
-        | Event::Key(KeyEvent {
-            code: KeyCode::Char('G'),
-            modifiers: KeyModifiers::SHIFT,
-        })
-        | Event::Key(KeyEvent {
-            code: KeyCode::Char('G'),
+            code: KeyCode::End,
             modifiers: KeyModifiers::NONE,
         }) => Some(InputEvent::UpdateUpperMark(usize::MAX)),
 
@@ -218,32 +202,27 @@ pub(crate) fn handle_input(
         Event::Key(KeyEvent {
             code: KeyCode::Char('/'),
             modifiers: KeyModifiers::NONE,
-        }) => Some(InputEvent::Search(SearchMode::Forward)),
+        }) => Some(InputEvent::Search(SearchMode::Unknown)),
         #[cfg(feature = "search")]
         Event::Key(KeyEvent {
-            code: KeyCode::Char('?'),
-            modifiers: KeyModifiers::NONE,
-        }) => Some(InputEvent::Search(SearchMode::Reverse)),
-        #[cfg(feature = "search")]
-        Event::Key(KeyEvent {
-            code: KeyCode::Char('n'),
-            modifiers: KeyModifiers::NONE,
+            code: KeyCode::Down,
+            modifiers: KeyModifiers::CONTROL,
         }) => {
-            if search_mode == SearchMode::Reverse {
-                Some(InputEvent::PrevMatch)
-            } else {
+            if search_mode == SearchMode::Unknown {
                 Some(InputEvent::NextMatch)
+            } else {
+                None
             }
         }
         #[cfg(feature = "search")]
         Event::Key(KeyEvent {
-            code: KeyCode::Char('p'),
-            modifiers: KeyModifiers::NONE,
+            code: KeyCode::Up,
+            modifiers: KeyModifiers::CONTROL,
         }) => {
-            if search_mode == SearchMode::Reverse {
-                Some(InputEvent::NextMatch)
-            } else {
+            if search_mode == SearchMode::Unknown {
                 Some(InputEvent::PrevMatch)
+            } else {
+                None
             }
         }
         _ => None,
